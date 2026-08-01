@@ -1,12 +1,11 @@
--- some of this is forked from nullfire's death farm, go check them out https://github.com/TeamNullFire/NullFire
-
 if not game:IsLoaded() then
     repeat task.wait() until game:IsLoaded()
 end
 
 local q = queue_on_teleport or queueonteleport
-local script = loadstring(game:HttpGet("https://raw.githubusercontent.com/doram44/cheesy/refs/heads/main/stuff/deathfarm.lua"))()
-
+local script = [[
+loadstring(game:HttpGet("https://raw.githubusercontent.com/doram44/cheesy/refs/heads/main/stuff/deathfarm.lua"))()
+]]
 
 local smith = game:GetService("Players")
 local smith2 = game:GetService("ReplicatedStorage")
