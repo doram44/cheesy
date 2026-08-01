@@ -1,5 +1,3 @@
--- some of this is forked from nullfires go check them out https://github.com/TeamNullFire/NullFire
-
 if not game:IsLoaded() then
     repeat task.wait() until game:IsLoaded()
 end
@@ -14,10 +12,10 @@ local smith4 = smith2:WaitForChild("RemotesFolder")
 
 local function SendCaption(Text)
     if firesignal then
-        firesignal(smith4.Caption.OnClientEvent, "[Abysall Hub] " .. Text)
+        firesignal(smith4.Caption.OnClientEvent, Text)
     else
         if smith4:FindFirstChild("CaptionClient") then
-            smith4.CaptionClient:Fire("[Abysall Hub] " .. Text)
+            smith4.CaptionClient:Fire(Text)
         end
     end
 end
