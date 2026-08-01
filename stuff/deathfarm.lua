@@ -5,9 +5,7 @@ if not game:IsLoaded() then
 end
 
 local q = queue_on_teleport or queueonteleport
-local script = [[
-loadstring(game:HttpGet("https://raw.githubusercontent.com/doram44/cheesy/refs/heads/main/stuff/deathfarm.lua"))()
-]]
+local script = loadstring(game:HttpGet("https://raw.githubusercontent.com/doram44/cheesy/refs/heads/main/stuff/deathfarm.lua"))()
 
 local smith = game:GetService("Players")
 local smith2 = game:GetService("ReplicatedStorage")
