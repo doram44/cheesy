@@ -44,20 +44,51 @@ local function GetFloor()
     return val
 end
 
-if GetFloor() ~= "Hotel" then
+local floor = GetFloor()
+print("[deathfarm] current floor:", floor)
+if floor ~= "Hotel" then
     SendCaption("Use this script in the hotel floor for it to work")
+    print("[deathfarm] wrong floor, stopping")
     return
 end
 
-local smith5 = workspace:WaitForChild("CurrentRooms", 9e9):WaitForChild("0", 9e9)
-local smith6 = smith3.PlayerGui:WaitForChild("MainUI", 9e9):WaitForChild("ItemShop", 10)
-local smith7 = smith5:WaitForChild("Door", 9e9)
-local smith8 = smith7:WaitForChild("Hidden", 9e9)
-local smith9 = smith7:WaitForChild("Lock", 9e9):WaitForChild("UnlockPrompt", 9e9)
-local smith10 = smith2.GameData.LatestRoom
+local function WaitWithCheck(obj, name, timeout)
+    timeout = timeout or 15
+    local child = obj:WaitForChild(name, timeout)
+    if not child then
+        print(string.format("[deathfarm] STALLED: '%s' missing on %s after %.1fs", tostring(name), tostring(obj:GetFullName()), timeout))
+    end
+    return child
+end
+
+local smith5 = WaitWithCheck(workspace, "CurrentRooms")
+if not smith5 then return end
+local room0 = WaitWithCheck(smith5, "0")
+if not room0 then return end
+local smith6 = WaitWithCheck(smith3.PlayerGui, "MainUI")
+if not smith6 then return end
+smith6 = smith6:WaitForChild("ItemShop", 10)
+if not smith6 then
+    print("[deathfarm] STALLED: ItemShop missing in MainUI after 10s")
+    return
+end
+local smith7 = WaitWithCheck(room0, "Door")
+if not smith7 then return end
+local smith8 = WaitWithCheck(smith7, "Hidden")
+if not smith8 then return end
+local lock = WaitWithCheck(smith7, "Lock")
+if not lock then return end
+local smith9 = WaitWithCheck(lock, "UnlockPrompt")
+if not smith9 then return end
+local smith10 = smith2.GameData and smith2.GameData:FindFirstChild("LatestRoom")
+if not smith10 then
+    print("[deathfarm] STALLED: no GameData.LatestRoom found")
+    return
+end
 
 repeat task.wait() until smith6.Visible
 if not smith6 or not smith6.Visible then 
+    print("[deathfarm] ItemShop never became visible, restarting")
     smith4.PlayAgain:FireServer()
     q(script)
     return 
@@ -65,21 +96,44 @@ end
 
 smith6.Visible = false
 
-local key = smith5:WaitForChild("Assets", 9e9):WaitForChild("KeyObtain", 9e9)
-local hitbox = key:WaitForChild("Hitbox", 9e9)
+local key = WaitWithCheck(room0, "Assets")
+if not key then return end
+key = WaitWithCheck(key, "KeyObtain")
+if not key then return end
+local hitbox = WaitWithCheck(key, "Hitbox")
+if not hitbox then return end
 
+print("[deathfarm] moving to key hitbox")
 smith3.Character:PivotTo(hitbox:GetPivot())
+local keyWait = 0
 repeat 
     task.wait()
+    keyWait = keyWait + 1
+    if keyWait % 10 == 0 then
+        print("[deathfarm] waiting for Key child... " .. keyWait .. "s")
+    end
     smith3.Character:PivotTo(hitbox:GetPivot())
-until smith3.Character:FindFirstChild("Key")
+until smith3.Character:FindFirstChild("Key") or keyWait >= 60
+if not smith3.Character:FindFirstChild("Key") then
+    print("[deathfarm] STALLED: never got Key child after 60s")
+    return
+end
 
+print("[deathfarm] using key on hidden door")
+local unlockWait = 0
 repeat
     smith3.Character:PivotTo(smith8:GetPivot())
     smith9.HoldDuration = 0
     fireproximityprompt(smith9)
     task.wait()
-until smith10.Value ~= 0
+    unlockWait = unlockWait + 1
+    if unlockWait % 30 == 0 then
+        print("[deathfarm] unlocking... " .. unlockWait .. "s")
+    end
+until smith10.Value ~= 0 or unlockWait >= 300
+if smith10.Value == 0 then
+    print("[deathfarm] STALLED: door never unlocked after 300s")
+end
 
 if replicatesignal then
     replicatesignal(smith3.Kill)
