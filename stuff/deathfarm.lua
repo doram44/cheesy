@@ -5,7 +5,14 @@ if not game:IsLoaded() then
 end
 
 local q = queue_on_teleport or queueonteleport
-local script = loadstring(game:HttpGet("https://raw.githubusercontent.com/doram44/cheesy/refs/heads/main/stuff/deathfarm.lua"))()
+local function Requeue()
+    if q then
+        local src = (script and script.GetSource) and script:GetSource() or nil
+        if src then
+            q(src)
+        end
+    end
+end
 
 local smith = game:GetService("Players")
 local smith2 = game:GetService("ReplicatedStorage")
@@ -90,7 +97,7 @@ repeat task.wait() until smith6.Visible
 if not smith6 or not smith6.Visible then 
     print("[deathfarm] ItemShop never became visible, restarting")
     smith4.PlayAgain:FireServer()
-    q(script)
+    Requeue()
     return 
 end
 
@@ -144,4 +151,4 @@ end
 smith3:GetAttributeChangedSignal("Alive"):Wait()
 
 smith4.PlayAgain:FireServer()
-q(script)
+Requeue()
