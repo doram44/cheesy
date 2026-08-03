@@ -48,15 +48,13 @@ local function GetFloor()
 end
 
 local floor = GetFloor()
-print("[deathfarm] current floor:", floor)
 if floor ~= "Hotel" then
     SendCaption("Use this script in the hotel floor for it to work")
-    print("[deathfarm] wrong floor, stopping")
     return
 end
 
 if #smith5:GetChildren() > 1 or smith3.Character then
-    SendCaption("Run already started, joining a new run...")
+    SendCaption("Rejoining run")
     q(script)
     smith4.PlayAgain:FireServer()
     return
@@ -64,11 +62,7 @@ end
 
 local function WaitWithCheck(obj, name, timeout)
     timeout = timeout or 15
-    local child = obj:WaitForChild(name, timeout)
-    if not child then
-        print(string.format("[deathfarm] STALLED: '%s' missing on %s after %.1fs", tostring(name), tostring(obj:GetFullName()), timeout))
-    end
-    return child
+    return obj:WaitForChild(name, timeout)
 end
 
 local room0 = WaitWithCheck(smith5, "0")
@@ -77,13 +71,11 @@ local smith6 = WaitWithCheck(smith3.PlayerGui, "MainUI")
 if not smith6 then return end
 smith6 = smith6:WaitForChild("ItemShop", 10)
 if not smith6 then
-    print("[deathfarm] STALLED: ItemShop missing in MainUI after 10s")
     return
 end
 
 repeat task.wait() until smith6.Visible
 if not smith6 or not smith6.Visible then
-    print("[deathfarm] ItemShop never became visible, restarting")
     smith4.PlayAgain:FireServer()
     q(script)
     return
@@ -97,7 +89,6 @@ if not key then return end
 local hitbox = WaitWithCheck(key, "Hitbox")
 if not hitbox then return end
 
-print("[deathfarm] moving to key hitbox")
 smith3.Character:PivotTo(hitbox:GetPivot())
 repeat
     task.wait()
@@ -114,11 +105,9 @@ local smith9 = WaitWithCheck(lock, "UnlockPrompt")
 if not smith9 then return end
 local smith10 = smith2.GameData and smith2.GameData:FindFirstChild("LatestRoom")
 if not smith10 then
-    print("[deathfarm] STALLED: no GameData.LatestRoom found")
     return
 end
 
-print("[deathfarm] using key on hidden door")
 repeat
     smith3.Character:PivotTo(smith8:GetPivot())
     smith9.HoldDuration = 0
